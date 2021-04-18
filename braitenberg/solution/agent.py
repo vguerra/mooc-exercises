@@ -26,8 +26,8 @@ from preprocessing import preprocess
 
 @dataclass
 class BraitenbergAgentConfig:
-    gain: float = 0.1
-    const: float = 0.1
+    gain: float = 0.4
+    const: float = 0.6
 
 
 class BraitenbergAgent:
@@ -44,10 +44,14 @@ class BraitenbergAgent:
     def init(self, context: Context):
         context.info("init()")
         self.rgb = None
-        self.l_max = -math.inf
-        self.r_max = -math.inf
-        self.l_min = math.inf
-        self.r_min = math.inf
+        self.l_fwd_max = -math.inf
+        self.r_fwd_max = -math.inf
+        self.l_fwd_min = math.inf
+        self.r_fwd_min = math.inf
+        self.l_bwd_max = -math.inf
+        self.r_bwd_max = -math.inf
+        self.l_bwd_min = math.inf
+        self.r_bwd_min = math.inf
         self.left = None
         self.right = None
 
@@ -63,7 +67,7 @@ class BraitenbergAgent:
             context.info("received first observations")
         self.rgb = dcu.bgr_from_rgb(dcu.bgr_from_jpg(camera.jpg_data))
 
-    def compute_commands(self) -> Tuple[float, float]:
+    def compute_commands(self, context:Context) -> Tuple[float, float]:
         """ Returns the commands (pwm_left, pwm_right) """
         # If we have not received any image, we don't move
         if self.rgb is None:
@@ -80,6 +84,7 @@ class BraitenbergAgent:
         # now we just compute the activation of our sensors
         l = float(np.sum(P * self.left))
         r = float(np.sum(P * self.right))
+        context.info(f"left raw: {l}, right raw: {r}")
 
         # These are big numbers -- we want to normalize them.
         # We normalize them using the history
@@ -96,13 +101,13 @@ class BraitenbergAgent:
 
         gain = self.config.gain
         const = self.config.const
-        pwm_left = const + rs * gain
-        pwm_right = const + ls * gain
+        pwm_left = const + ls * gain
+        pwm_right = const + rs * gain
 
         return pwm_left, pwm_right
 
     def on_received_get_commands(self, context: Context, data: GetCommands):
-        pwm_left, pwm_right = self.compute_commands()
+        pwm_left, pwm_right = self.compute_commands(context)
 
         col = RGB(0.0, 0.0, 1.0)
         col_left = RGB(pwm_left, pwm_left, 0.0)

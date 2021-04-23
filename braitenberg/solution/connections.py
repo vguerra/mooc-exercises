@@ -27,8 +27,8 @@ def get_motor_left_matrix(shape: Tuple[int, int]) -> np.ndarray:
     res[3*quarter_height:, quarter_width:2*quarter_width] = 8
     
     # breaking
-    # res[2*quarter_height:, 2*quarter_width:3*quarter_width] = -10
-    # res[2*quarter_height:, 3*quarter_width:] = -8
+    res[2*quarter_height:, 2*quarter_width:3*quarter_width] = -1
+    # res[2*quarter_height:, 3*quarter_width:] = -1
     
     #res[:, quarter_width:2*quarter_width] = 1
 
@@ -49,8 +49,8 @@ def get_motor_right_matrix(shape: Tuple[int, int]) -> np.ndarray:
     #res[:, 2*quarter_width:3*quarter_width] = 1
 
     # breaking
-    # res[2*quarter_height:3*quarter_height, quarter_width:2*quarter_width] = -10
-    # res[2*quarter_height:3*quarter_height, :quarter_width] = -8
+    res[2*quarter_height:3*quarter_height, quarter_width:2*quarter_width] = -1
+    # res[2*quarter_height:3*quarter_height, :quarter_width] = -1
 
     return res
 

@@ -84,26 +84,39 @@ class BraitenbergAgent:
         # now we just compute the activation of our sensors
         l = float(np.sum(P * self.left))
         r = float(np.sum(P * self.right))
-        context.info(f"left raw: {l}, right raw: {r}")
-
-        # These are big numbers -- we want to normalize them.
-        # We normalize them using the history
-
-        # first, we remember the high/low of these raw signals
-        self.l_max = max(l, self.l_max)
-        self.r_max = max(r, self.r_max)
-        self.l_min = min(l, self.l_min)
-        self.r_min = min(r, self.r_min)
-
-        # now rescale from 0 to 1
-        ls = rescale(l, self.l_min, self.l_max)
-        rs = rescale(r, self.r_min, self.r_max)
+        # context.info(f"left raw: {l}, right raw: {r}")
 
         gain = self.config.gain
         const = self.config.const
-        pwm_left = const + ls * gain
-        pwm_right = const + rs * gain
+        bwd_gain = 0.1
 
+        if l < 0.0:
+            self.l_bwd_max = max(-l, self.l_bwd_max)
+            self.l_bwd_min = min(-l, self.l_bwd_min)
+            ls = rescale(-l, self.l_bwd_min, self.l_bwd_max)
+            pwm_left = -ls * bwd_gain
+            # context.info(f"pwm left: {pwm_left}, pwm right: {-pwm_left}")
+            return (pwm_left, -pwm_left)
+        else:
+            self.l_fwd_max = max(l, self.l_fwd_max)
+            self.l_fwd_min = min(l, self.l_fwd_min)
+            ls = rescale(l, self.l_fwd_min, self.l_fwd_max)
+            pwm_left = const + ls * gain
+
+        if r < 0.0:
+            self.r_bwd_max = max(-r, self.r_bwd_max)
+            self.r_bwd_min = min(-r, self.r_bwd_min)
+            rs = rescale(-r, self.r_bwd_min, self.r_bwd_max)
+            pwm_right = -rs * bwd_gain
+            # context.info(f"pwm left: {-pwm_right}, pwm right: {pwm_right}")
+            return (-pwm_right, pwm_right)
+        else:
+            self.r_fwd_max = max(r, self.r_fwd_max)
+            self.r_fwd_min = min(r, self.r_fwd_min)
+            rs = rescale(r, self.r_fwd_min, self.r_fwd_max)
+            pwm_right = const + rs * gain
+
+        # context.info(f"pwm left: {pwm_left}, pwm right: {pwm_right}")
         return pwm_left, pwm_right
 
     def on_received_get_commands(self, context: Context, data: GetCommands):

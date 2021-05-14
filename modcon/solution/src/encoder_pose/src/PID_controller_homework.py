@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
+# In[1]:
 
 
 import numpy as np
@@ -33,15 +33,49 @@ def PIDController(
         e_y (:double:) current tracking error (automatically becomes prev_e_y at next iteration).
         e_int_y (:double:) current integral error (automatically becomes prev_int_y at next iteration).
     """
+    # (21_05_11_11_32_45 = 000 - 41.21 ; 001 - 14.35)
+    # Kp = 1.75, Kd = 0.0, Ki = 0.0
+
+    # (21_05_12_11_41_47 = 000 - 60.00 ; 001 - 20.00)
+    # Kp = 1.75, Kd = 10.0, Ki = 0.0
+
+    # (21_05_12_12_37_49 = 000 - 60.00 ; 001 - 28.15)
+    # Kp = 1.75, Kd = 50.0, Ki = 0.0
+
+    # (21_05_14_10_53_25 = 000 - 60.00 ; 001 - 28.35)
+    # Kp = 3.00, Kd = 60.57, Ki = 0.17
+
+    # Tu = 17, Kp = 0.75, Ti = 8.5, Td = 2.1
+    # Tu = 12, Kp = 1.75
     
-    Kp = 5
-    Ki = 0.2
-    Kd = 0.1
+    Kp = 6.00
+    Kd = 60.57
+    Ki = 0.17
+    boundary_int_y = 0.5
+    max_omega = 8.0
     e_y = y_ref - y_hat
     e_der_y = (e_y - prev_e_y)/delta_t
     e_int_y = prev_int_y + e_y * delta_t
-    e_int_y = max(min(e_int_y,2),-2)
+    e_int_y = max(min(e_int_y, boundary_int_y), -boundary_int_y)
     omega = Kp*e_y + Ki*e_int_y + Kd*e_der_y
-    
+#     print(e_y, omega)
+#     omega = max(min(omega, boundary_omega), -boundary_omega)
+
+    if False:
+        print(f"v_0 = {v_0}")
+        print(f"y_ref = {y_ref}")
+        print(f"prev_e_y = {prev_e_y}")
+        print(f"prev_int_y = {prev_int_y}")
+        print(f"y_hat = {y_hat}")
+        print(f"delta_t = {delta_t}")
+        print(f"e_y = {e_y}")
+        print(f"e_der_y = {e_der_y}")
+        print(f"e_int_y = {e_int_y}")
+        print(f"omega = {omega}")
+        if omega > 0:
+            print("turning LEFT")
+        else:
+            print("turning RIGHT")
+
     return [v_0, omega], e_y, e_int_y
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[3]:
 
 
 import numpy as np
@@ -45,12 +45,15 @@ def PIDController(
     # (21_05_14_10_53_25 = 000 - 60.00 ; 001 - 28.35)
     # Kp = 3.00, Kd = 60.57, Ki = 0.17
 
+    # (21_05_14_10_53_25 = 000 - 60.00 ; 001 - 40.15)
+    # Kp = 3.00, Kd = 60.57, Ki = 0.4
+
     # Tu = 17, Kp = 0.75, Ti = 8.5, Td = 2.1
     # Tu = 12, Kp = 1.75
     
-    Kp = 6.00
+    Kp = 3.00
     Kd = 60.57
-    Ki = 0.17
+    Ki = 0.4
     boundary_int_y = 0.5
     max_omega = 8.0
     e_y = y_ref - y_hat
